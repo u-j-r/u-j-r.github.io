@@ -1,1 +1,81 @@
-Hello Word
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lista de Tareas</title>
+  <style>
+    body { font-family: sans-serif; max-width: 600px; margin: 2rem auto; padding: 1rem; }
+    h1 { text-align: center; }
+    .task { margin-bottom: 1rem; padding: 0.5rem; border: 1px solid #ccc; border-radius: 6px; }
+    .completed { text-decoration: line-through; color: gray; }
+    textarea { width: 100%; margin-top: 0.5rem; }
+    button { margin-top: 0.5rem; }
+  </style>
+</head>
+<body>
+  <h1>✅ Lista de Tareas</h1>
+
+  <form id="task-form">
+    <input type="text" id="task-title" placeholder="Nueva tarea" required>
+    <br>
+    <textarea id="task-comment" rows="2" placeholder="Comentario (opcional)"></textarea>
+    <br>
+    <button type="submit">Agregar tarea</button>
+  </form>
+
+  <hr>
+
+  <div id="task-list"></div>
+
+  <script>
+    let tasks = JSON.parse(localStorage.getItem("tasks") || "[]");
+
+    const renderTasks = () => {
+      const list = document.getElementById("task-list");
+      list.innerHTML = "";
+      tasks.forEach((task, index) => {
+        const div = document.createElement("div");
+        div.className = "task";
+        if (task.done) div.classList.add("completed");
+
+        div.innerHTML = `
+          <strong>${task.title}</strong>
+          <p>${task.comment}</p>
+          <label><input type="checkbox" ${task.done ? "checked" : ""} onchange="toggleTask(${index})"> Completada</label>
+          <button onclick="deleteTask(${index})">🗑️ Eliminar</button>
+        `;
+        list.appendChild(div);
+      });
+    };
+
+    const toggleTask = index => {
+      tasks[index].done = !tasks[index].done;
+      saveTasks();
+    };
+
+    const deleteTask = index => {
+      tasks.splice(index, 1);
+      saveTasks();
+    };
+
+    const saveTasks = () => {
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+      renderTasks();
+    };
+
+    document.getElementById("task-form").addEventListener("submit", e => {
+      e.preventDefault();
+      const title = document.getElementById("task-title").value.trim();
+      const comment = document.getElementById("task-comment").value.trim();
+      if (title) {
+        tasks.push({ title, comment, done: false });
+        saveTasks();
+        e.target.reset();
+      }
+    });
+
+    renderTasks();
+  </script>
+</body>
+</html>
