@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lista de pendientes MM</title>
+  <title>Snake Mit-Mut</title>
   <style>
     body {
       margin: 0;
@@ -12,75 +12,11 @@
       background-size: cover;
       background-position: center;
       color: #f0f0f0;
-    }
-
-    .container {
-      display: flex;
-      gap: 2rem;
-      padding: 2rem;
-      background-color: rgba(0, 0, 0, 0.6);
-      min-height: 100vh;
-    }
-
-    .tasks, .form {
-      background-color: rgba(20, 20, 20, 0.8);
-      padding: 1.5rem;
-      border-radius: 10px;
-    }
-
-    .tasks {
-      flex: 65%;
-    }
-
-    .form {
-      flex: 35%;
+      text-align: center;
     }
 
     h1 {
-      text-align: center;
-      font-size: 2rem;
-      margin-top: 0;
-      color: #ffffff;
-    }
-
-    .task {
-      margin-bottom: 1rem;
-      padding: 0.8rem;
-      border: 1px solid #444;
-      border-radius: 6px;
-      background-color: #2a2a2a;
-    }
-
-    .completed {
-      text-decoration: line-through;
-      color: gray;
-    }
-
-    input[type="text"], textarea {
-      width: 100%;
-      padding: 0.5rem;
-      margin-top: 0.5rem;
-      background-color: #444;
-      border: none;
-      color: white;
-      border-radius: 4px;
-    }
-
-    button {
-      margin-top: 0.5rem;
-      padding: 0.5rem 1rem;
-      background-color: #009688;
-      border: none;
-      border-radius: 4px;
-      color: white;
-      cursor: pointer;
-    }
-
-    .footer {
-      text-align: center;
-      color: #ccc;
-      margin-top: 2rem;
-      font-size: 0.9rem;
+      margin: 1rem 0;
     }
 
     canvas {
@@ -92,86 +28,10 @@
   </style>
 </head>
 <body>
-  <h1>📋 Lista de pendientes MM</h1>
-  <div class="container">
-    <div class="tasks">
-      <div id="task-list"></div>
-    </div>
-    <div class="form">
-      <form id="task-form">
-        <label>Tarea:</label>
-        <input type="text" id="task-title" placeholder="Nueva tarea" required>
-        <label>Comentario:</label>
-        <textarea id="task-comment" rows="3" placeholder="Comentario (opcional)"></textarea>
-        <button type="submit">Agregar tarea</button>
-      </form>
-    </div>
-  </div>
-
+  <h1>🐍 Snake - MIT-MUT</h1>
   <canvas id="snake-game" width="400" height="400"></canvas>
 
-  <div class="footer" id="last-update"></div>
-
   <script>
-    let tasks = JSON.parse(localStorage.getItem("tasks") || "[]");
-
-    const renderTasks = () => {
-      const list = document.getElementById("task-list");
-      list.innerHTML = "";
-      tasks.forEach((task, index) => {
-        const div = document.createElement("div");
-        div.className = "task";
-        if (task.done) div.classList.add("completed");
-
-        div.innerHTML = `
-          <strong>${task.title}</strong>
-          <p>${task.comment}</p>
-          <label><input type="checkbox" ${task.done ? "checked" : ""} onchange="toggleTask(${index})"> Completada</label>
-          <button onclick="deleteTask(${index})">🗑️ Eliminar</button>
-        `;
-        list.appendChild(div);
-      });
-    };
-
-    const toggleTask = index => {
-      tasks[index].done = !tasks[index].done;
-      saveTasks();
-    };
-
-    const deleteTask = index => {
-      tasks.splice(index, 1);
-      saveTasks();
-    };
-
-    const saveTasks = () => {
-      localStorage.setItem("tasks", JSON.stringify(tasks));
-      localStorage.setItem("lastUpdate", new Date().toLocaleString());
-      renderTasks();
-      showLastUpdate();
-    };
-
-    document.getElementById("task-form").addEventListener("submit", e => {
-      e.preventDefault();
-      const title = document.getElementById("task-title").value.trim();
-      const comment = document.getElementById("task-comment").value.trim();
-      if (title) {
-        tasks.push({ title, comment, done: false });
-        saveTasks();
-        e.target.reset();
-      }
-    });
-
-    const showLastUpdate = () => {
-      const timestamp = localStorage.getItem("lastUpdate");
-      if (timestamp) {
-        document.getElementById("last-update").textContent = `Última actualización: ${timestamp}`;
-      }
-    };
-
-    renderTasks();
-    showLastUpdate();
-
-    // Juego Snake
     const canvas = document.getElementById("snake-game");
     const ctx = canvas.getContext("2d");
     const box = 20;
@@ -181,6 +41,8 @@
       x: Math.floor(Math.random() * 19 + 1) * box,
       y: Math.floor(Math.random() * 19 + 1) * box
     };
+    let letters = "MITMUT".split("");
+    let letterIndex = 0;
 
     document.addEventListener("keydown", event => {
       if (event.key === "ArrowLeft" && direction !== "RIGHT") direction = "LEFT";
@@ -194,14 +56,15 @@
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       for (let i = 0; i < snake.length; i++) {
-        ctx.fillStyle = i === 0 ? "lime" : "green";
+        ctx.fillStyle = "white";
         ctx.fillRect(snake[i].x, snake[i].y, box, box);
-        ctx.strokeStyle = "#000";
-        ctx.strokeRect(snake[i].x, snake[i].y, box, box);
       }
 
+      // Dibuja la comida como un círculo
       ctx.fillStyle = "red";
-      ctx.fillRect(food.x, food.y, box, box);
+      ctx.beginPath();
+      ctx.arc(food.x + box / 2, food.y + box / 2, box / 2.5, 0, 2 * Math.PI);
+      ctx.fill();
 
       let headX = snake[0].x;
       let headY = snake[0].y;
@@ -212,6 +75,11 @@
       if (direction === "DOWN") headY += box;
 
       if (headX === food.x && headY === food.y) {
+        if (letterIndex < letters.length) {
+          const char = letters[letterIndex];
+          document.title = `Snake - MIT-MUT (${letters.slice(0, letterIndex + 1).join('')})`;
+          letterIndex++;
+        }
         food = {
           x: Math.floor(Math.random() * 19 + 1) * box,
           y: Math.floor(Math.random() * 19 + 1) * box
